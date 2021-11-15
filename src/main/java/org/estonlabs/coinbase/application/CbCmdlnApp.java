@@ -4,18 +4,31 @@ import org.estonlabs.coinbase.application.commands.HelpCommand;
 import org.estonlabs.coinbase.application.commands.LogJSONCommand;
 import org.estonlabs.coinbase.application.commands.LoginCommand;
 import org.estonlabs.coinbase.application.commands.TimeZoneCommand;
+import org.estonlabs.coinbase.application.commands.accounts.AccountCommands;
 import org.estonlabs.coinbase.application.commands.accounts.ShowAccountCommand;
 import org.estonlabs.coinbase.application.commands.accounts.ShowAllAccountsCommand;
 import org.estonlabs.coinbase.application.commands.accounts.UpdateAccountCommand;
+import org.estonlabs.coinbase.application.commands.price.PriceCommands;
+import org.estonlabs.coinbase.application.commands.price.ShowCurrencyCodesCommand;
+import org.estonlabs.coinbase.application.commands.price.ShowPriceCommand;
+import org.estonlabs.coinbase.application.commands.transaction.PaymentMethodCommands;
 import org.estonlabs.coinbase.application.commands.transaction.ShowPaymentMethodCommand;
 import org.estonlabs.coinbase.application.commands.transaction.ShowPaymentMethodsCommand;
 import org.estonlabs.coinbase.application.commands.user.ShowUserCommand;
 import org.estonlabs.coinbase.application.commands.user.UpdateUserCommand;
+import org.estonlabs.coinbase.application.commands.user.UserCommands;
+import org.estonlabs.coinbase.client.CbClient;
+import org.estonlabs.coinbase.domain.system.CbTime;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CbCmdlnApp implements Runnable{
@@ -30,31 +43,29 @@ public class CbCmdlnApp implements Runnable{
 
         final Map<String, CommandLine> commands = new HashMap<>();
         put(commands, new LogJSONCommand());
-        put(commands, new ShowAllAccountsCommand());
-        put(commands, new ShowAccountCommand());
-        put(commands, new UpdateAccountCommand());
+        put(commands, new AccountCommands());
         put(commands, new LoginCommand());
-        put(commands, new ShowUserCommand());
-        put(commands, new UpdateUserCommand());
-        put(commands, new ShowPaymentMethodCommand());
-        put(commands, new ShowPaymentMethodsCommand());
+        put(commands, new UserCommands());
+        put(commands, new PaymentMethodCommands());
         put(commands, new HelpCommand(commands));
         put(commands, new TimeZoneCommand());
+        put(commands, new PriceCommands());
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         commands.get("help").execute();
 
         if(attemptEagerLoginFromSystemProperty()){
             System.out.println("******Logged into Coinbase API.***********");
+            logTime(CbClientWrapper.INSTANCE.getClient());
         }else{
             System.out.println("********************** PLEASE READ ****************************");
             System.out.println("Run 'login -s <secret> -a <API key>' to login.  Alternatively pass -DCbSecret -DCbAPIKey in the program args to auto login");
             System.out.println("***************************************************************");
         }
-        if(CbClientWrapper.INSTANCE.getClient().isLConnectedToProd()){
+        CbClient client = CbClientWrapper.INSTANCE.getClient();
+        if(client.isLConnectedToProd()){
             System.out.println("!!!!!!!!!!! WARNING --- CONNECTED TO LIVE PROD ACCOUNT !!!!!!!!!!! ");
         }else{
-
             System.out.println("*** Connected to the Sandbox ***");
         }
 
@@ -101,6 +112,20 @@ public class CbCmdlnApp implements Runnable{
         }
         return false;
     }
+
+    private void logTime(CbClient client ){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        String before = LocalDateTime.now().format(formatter);
+        CbTime time = client.getServerTime();
+        DateTimeFormatter fromIso = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime serverTime = LocalDateTime.parse(
+                time.getIso().replaceAll("T", " ").replaceAll("Z",""),fromIso);
+        // LocalDateTime serverTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(time.getEpoch()), ZoneId.systemDefault());
+        System.out.println("Local Time: " + before);
+        System.out.println("Server Time: " + serverTime.format(formatter));
+        System.out.println("Local Time: " + LocalDateTime.now().format(formatter));
+    }
+
 
     public static void main(String args[]) throws Exception {
         new CbCmdlnApp().run();

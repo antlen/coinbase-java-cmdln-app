@@ -6,8 +6,12 @@ import org.estonlabs.coinbase.domain.account.CbAccount;
 import picocli.CommandLine;
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "show_account")
+@CommandLine.Command(name = "show", description = "displays an account for the given id.",
+        mixinStandardHelpOptions = true)
 public class ShowAccountCommand extends ShowObjectCommand<CbAccount> {
+    public ShowAccountCommand() {
+        super(true);
+    }
 
     @Override
     protected CbAccount getData() {

@@ -7,7 +7,7 @@ import java.util.List;
 public abstract class ShowListOfObjectsCommand<T> implements Runnable{
     private static final String DELIMITER = " | ";
 
-    @CommandLine.Option(names = {"-all"}, description = "Shows all of the accounts. By default will only show the accounts with a balance.")
+    @CommandLine.Option(names = {"-all"}, description = "Shows all of the results. By default will only show the results if shouldDisplay is true")
     Boolean all;
 
     @CommandLine.Option(names = {"-verbose"}, description = "Show all details")
@@ -25,7 +25,7 @@ public abstract class ShowListOfObjectsCommand<T> implements Runnable{
         boolean showAll = (all !=null && all);
         boolean verbose = (this.verbose !=null && this.verbose);
         for(T d : data){
-            if(showAll ||(!showAll && shouldDisplay(d))){
+            if(showAll || shouldDisplay(d)){
                 if(verbose){
                     System.out.println(d);
                 }else{

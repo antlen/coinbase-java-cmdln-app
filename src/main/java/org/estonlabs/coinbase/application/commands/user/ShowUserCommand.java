@@ -2,16 +2,13 @@ package org.estonlabs.coinbase.application.commands.user;
 
 import org.estonlabs.coinbase.application.CbClientWrapper;
 import org.estonlabs.coinbase.application.commands.ShowObjectCommand;
-import org.estonlabs.coinbase.client.CbApiException;
 import org.estonlabs.coinbase.client.CbClient;
-import org.estonlabs.coinbase.domain.account.CbAccount;
 import org.estonlabs.coinbase.domain.user.CbUser;
 import picocli.CommandLine;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-
-@CommandLine.Command(name = "show_user")
+@CommandLine.Command(name = "show",
+        description = "shows the user detail.  Will default to current user if -id is not passed.",
+        mixinStandardHelpOptions = true)
 public class ShowUserCommand extends ShowObjectCommand<CbUser> {
 
     @CommandLine.Option(names = {"-auth"}, description = "Whether to display the Oath info.  If omitted the users basic info will be displayed.")

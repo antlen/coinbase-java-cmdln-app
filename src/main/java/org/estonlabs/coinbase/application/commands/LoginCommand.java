@@ -1,28 +1,45 @@
 package org.estonlabs.coinbase.application.commands;
 
 import org.estonlabs.coinbase.application.CbClientWrapper;
+import org.estonlabs.coinbase.client.CbClient;
 import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "login")
-public class LoginCommand implements Callable<Integer>{
+@CommandLine.Command(name = "login", subcommands = {LoginCommand.Init.class, LoginCommand.Reconnect.class})
+public class LoginCommand{
 
-    @CommandLine.Option(names = {"-s", "--secret"}, description = "Secret key", required = true)
-    String secret;
+    @CommandLine.Command(name = "init")
+    public static class Init implements Runnable{
 
-    @CommandLine.Option(names = {"-a", "--apiKey"}, description = "API Key", required = true)
-    String api;
+        @CommandLine.Option(names = {"-s", "--secret"}, description = "Secret key", required = true)
+        String secret;
 
-    @CommandLine.Option(names = {"-p", "--passphrase"}, description = "Passphrase - for sandbox", required = true)
-    String passphrase;
+        @CommandLine.Option(names = {"-a", "--apiKey"}, description = "API Key")
+        String api;
 
-    @CommandLine.Option(names = {"-useSandbox"}, description = "Connect to sandbox rather than LIVE.")
-    boolean useSandbox;
+        @CommandLine.Option(names = {"-p", "--passphrase"}, description = "Passphrase - for sandbox", required = true)
+        String passphrase;
 
-    @Override
-    public Integer call() throws Exception {
-        CbClientWrapper.INSTANCE.init(api, secret.getBytes(), useSandbox, passphrase);
-        return 0;
+        @CommandLine.Option(names = {"-useSandbox"}, description = "Connect to sandbox rather than LIVE.")
+        boolean useSandbox;
+
+        @Override
+        public void run() {
+            CbClientWrapper.INSTANCE.init(api, secret.getBytes(), useSandbox, passphrase);
+        }
     }
+
+    @CommandLine.Command(name = "reconnect")
+    public static class Reconnect implements Runnable{
+        @Override
+        public void run() {
+            CbClient c  = CbClientWrapper.INSTANCE.getClient();
+            if(c == null){
+                throw new NullPointerException("Please init the client (login) before running reconnect.");
+            }
+            c.reconnect();
+        }
+    }
+
 }

@@ -8,7 +8,8 @@ import picocli.CommandLine;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "show_accounts")
+@CommandLine.Command(name = "list", description = "lists all accounts.",
+        mixinStandardHelpOptions = true)
 public class ShowAllAccountsCommand extends ShowListOfObjectsCommand<CbAccount> {
 
     @Override

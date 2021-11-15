@@ -8,7 +8,8 @@ import picocli.CommandLine;
 
 import java.util.List;
 
-@CommandLine.Command(name = "show_payment_methods")
+@CommandLine.Command(name = "list",  description = "shows all payment methods.",
+        mixinStandardHelpOptions = true)
 public class ShowPaymentMethodsCommand extends ShowListOfObjectsCommand<CbPaymentMethod> {
 
     @Override
