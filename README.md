@@ -1,4 +1,5 @@
-# coinbase-java-v2-api-app
+# ccoinbase-java-cmdln-app
+
 A tiny command line application for interacting with the [coinbase api](https://github.com/antlen/coinbase-java-api)
 
 When ran you will see a list of commands that you can type to interact with the coinbase api
