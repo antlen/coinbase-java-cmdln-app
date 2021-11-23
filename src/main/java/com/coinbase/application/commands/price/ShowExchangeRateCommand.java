@@ -14,12 +14,12 @@ import java.util.Map;
 public class ShowExchangeRateCommand extends ShowListOfObjectsCommand<ShowExchangeRateCommand.Rate> {
 
     @CommandLine.Option(names = {"-code"}, description = "The currency code.")
-    protected String pair;
+    protected String code;
 
     @Override
     protected List<Rate> getData(CoinbaseClient c) {
         ArrayList<Rate> l = new ArrayList<>();
-        CbExchangeRate r = c.getBTCExchangeRate();
+        CbExchangeRate r = code==null?c.getExchangeRate(): c.getExchangeRate(code);
         for(Map.Entry<String, Double> e : r.getRates().entrySet()){
             l.add(new Rate(e.getKey(), e.getValue()));
         }
