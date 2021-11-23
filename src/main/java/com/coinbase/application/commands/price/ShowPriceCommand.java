@@ -45,7 +45,6 @@ public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
             LocalDate d = date==null?null: LocalDate.parse(date, PRICE_DATE_FORMAT);
             prices.add(client.getSpotPrice(pair, d));
         }
-
         return prices;
     }
 
@@ -61,5 +60,4 @@ public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
                 cbPrice.getCurrency(),
                 ValidationUtils.valueOrEmpty(cbPrice.getAmount(), t -> Double.toString(t)) };
     }
-
 }

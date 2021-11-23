@@ -31,7 +31,6 @@ public class PlaceOrderCommand extends AbstractMoneyCommand<CbOrderRequestBuilde
 
     @Override
     protected CbOrderRequestBuilder build() {
-
         return new CbOrderRequestBuilder().setSide(Side.valueOf(side.toUpperCase())).
                 setPaymentMethod(pm).setCommit(commit);
     }
