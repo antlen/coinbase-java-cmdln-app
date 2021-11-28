@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.user;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.user.CbUser;
 import picocli.CommandLine;
 
@@ -15,7 +15,7 @@ public class ShowUserCommand extends ShowObjectCommand<CbUser> {
     boolean auth;
 
     @Override
-    protected CbUser getData(CoinbaseClient client) {
+    protected CbUser getData(CoinbaseSyncClient client) {
         return id == null ? client.getUser() : client.getUser(id);
     }
 

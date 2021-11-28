@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.exchange;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CbTrade;
 import com.coinbase.domain.trade.Side;
 import com.coinbase.util.ValidationUtils;
@@ -31,7 +31,7 @@ public class CommitOrderCommand extends ShowObjectCommand<CbTrade> {
     }
 
     @Override
-    protected CbTrade getData(CoinbaseClient c) {
+    protected CbTrade getData(CoinbaseSyncClient c) {
         CbTrade t = LocalCache.TRADE_CACHE.get(id);
         if(t != null){
             t = c.commitOrder(t);

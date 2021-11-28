@@ -1,7 +1,8 @@
 package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.exchange.AbstractMoneyCommand;
-import com.coinbase.client.CoinbaseClient;
+
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.application.cache.LocalCache;
 import com.coinbase.domain.trade.CbCashTransaction;
@@ -33,7 +34,7 @@ public abstract class ExecuteCashTransactionCommand extends AbstractMoneyCommand
     }
 
     @Override
-    protected CbCashTransaction execute(CbCashTransactionRequestBuilder b, CoinbaseClient c) {
+    protected CbCashTransaction execute(CbCashTransactionRequestBuilder b, CoinbaseSyncClient c) {
         CbCashTransaction d = c.executeCashTransaction(b.build());
         LocalCache.CASH_TRANS_CACHE.put(d.getId(), d);
         return d;

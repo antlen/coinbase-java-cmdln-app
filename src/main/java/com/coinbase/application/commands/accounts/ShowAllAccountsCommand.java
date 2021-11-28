@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.accounts;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.account.CbAccount;
 import picocli.CommandLine;
 
@@ -12,7 +12,7 @@ import java.util.List;
 public class ShowAllAccountsCommand extends ShowListOfObjectsCommand<CbAccount> {
 
     @Override
-    protected List<CbAccount> getData(CoinbaseClient c) {
+    protected List<CbAccount> getData(CoinbaseSyncClient c) {
         return c.getAccounts();
     }
 

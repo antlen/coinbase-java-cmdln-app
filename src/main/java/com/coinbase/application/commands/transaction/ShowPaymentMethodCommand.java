@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.transaction;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.transaction.payment.CbPaymentMethod;
 import picocli.CommandLine;
 
@@ -13,7 +13,7 @@ public class ShowPaymentMethodCommand extends ShowObjectCommand<CbPaymentMethod>
     protected String id;
 
     @Override
-    protected CbPaymentMethod getData(CoinbaseClient c) {
+    protected CbPaymentMethod getData(CoinbaseSyncClient c) {
         return c.getPaymentMethod(id);
     }
 

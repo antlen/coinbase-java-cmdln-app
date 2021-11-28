@@ -1,6 +1,6 @@
 package com.coinbase.application.commands.exchange;
 
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.order.request.CbOrderRequestBuilder;
 import com.coinbase.util.ValidationUtils;
 import com.coinbase.application.cache.LocalCache;
@@ -36,7 +36,7 @@ public class PlaceOrderCommand extends AbstractMoneyCommand<CbOrderRequestBuilde
     }
 
     @Override
-    protected CbTrade execute(CbOrderRequestBuilder b, CoinbaseClient c) {
+    protected CbTrade execute(CbOrderRequestBuilder b, CoinbaseSyncClient c) {
         CbTrade cbTrade = c.placeOrder(b.build());
         LocalCache.TRADE_CACHE.put(cbTrade.getId(), cbTrade);
         return cbTrade;

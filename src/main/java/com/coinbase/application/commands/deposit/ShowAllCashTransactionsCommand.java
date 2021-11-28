@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.domain.trade.CbCashTransaction;
 import picocli.CommandLine;
@@ -19,7 +19,7 @@ public abstract class ShowAllCashTransactionsCommand extends ShowListOfObjectsCo
     }
 
     @Override
-    protected Collection<CbCashTransaction> getData(CoinbaseClient c) {
+    protected Collection<CbCashTransaction> getData(CoinbaseSyncClient c) {
         return c.getCashTransaction(account, type);
     }
 

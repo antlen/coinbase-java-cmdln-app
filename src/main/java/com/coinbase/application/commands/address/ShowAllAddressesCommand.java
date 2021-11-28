@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.address;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.address.CbAddress;
 import picocli.CommandLine;
 
@@ -14,7 +14,7 @@ public class ShowAllAddressesCommand extends ShowListOfObjectsCommand<CbAddress>
     protected String id;
 
     @Override
-    protected List<CbAddress> getData(CoinbaseClient c) {
+    protected List<CbAddress> getData(CoinbaseSyncClient c) {
         return c.getAddresses(id);
     }
 

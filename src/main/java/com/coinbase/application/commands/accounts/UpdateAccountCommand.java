@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.accounts;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.account.request.CbAccountUpdateRequest;
 import com.coinbase.domain.account.CbAccount;
 import picocli.CommandLine;
@@ -16,7 +16,7 @@ public class UpdateAccountCommand extends ShowAccountCommand {
     @Override
     protected CbAccount modify(CbAccount u) {
 
-        CoinbaseClient client = CbClientWrapper.INSTANCE.getClient();
+        CoinbaseSyncClient client = CbClientWrapper.INSTANCE.getClient();
 
         return client.updateAccountName(new CbAccountUpdateRequest(account, name));
     }

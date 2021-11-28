@@ -1,5 +1,6 @@
 package com.coinbase.application.cache;
 
+
 import com.coinbase.domain.trade.CbCashTransaction;
 import com.coinbase.domain.trade.CbTrade;
 

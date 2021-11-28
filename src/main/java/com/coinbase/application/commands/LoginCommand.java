@@ -1,7 +1,7 @@
 package com.coinbase.application.commands;
 
-import com.coinbase.client.CoinbaseClient;
 import com.coinbase.application.client.CbClientWrapper;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.system.CbTime;
 import picocli.CommandLine;
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public class LoginCommand{
 
         @Override
         public void run() {
-            CoinbaseClient c = CbClientWrapper.INSTANCE.init(api, secret.getBytes());
+            CoinbaseSyncClient c = CbClientWrapper.INSTANCE.init(api, secret.getBytes());
             ping(c);
         }
     }
@@ -38,7 +38,7 @@ public class LoginCommand{
     public static class Reconnect implements Runnable{
         @Override
         public void run() {
-            CoinbaseClient c  = CbClientWrapper.INSTANCE.getClient();
+            CoinbaseSyncClient c  = CbClientWrapper.INSTANCE.getClient();
             if(c == null){
                 throw new NullPointerException("Please init the client (login) before running reconnect.");
             }
@@ -47,12 +47,12 @@ public class LoginCommand{
         }
     }
 
-    private static void ping(CoinbaseClient client){
+    private static void ping(CoinbaseSyncClient client){
         System.out.println("******Logged into Coinbase API.***********");
         logTime(client);
     }
 
-    private static void logTime(CoinbaseClient client){
+    private static void logTime(CoinbaseSyncClient client){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         String before = LocalDateTime.now().format(formatter);
         CbTime time = client.getServerTime();

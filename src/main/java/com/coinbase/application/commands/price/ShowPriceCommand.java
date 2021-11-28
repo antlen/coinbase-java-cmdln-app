@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.price;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.util.ValidationUtils;
 import com.coinbase.domain.price.CbPrice;
 import com.coinbase.domain.price.PriceType;
@@ -33,7 +33,7 @@ public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
     protected String date;
 
     @Override
-    protected List<CbPrice> getData(CoinbaseClient client) {
+    protected List<CbPrice> getData(CoinbaseSyncClient client) {
         List<CbPrice> prices = new ArrayList<>();
         if(buy){
             prices.add(client.getPrice(PriceType.BUY, pair));

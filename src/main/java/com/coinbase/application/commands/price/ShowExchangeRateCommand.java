@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.price;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.price.CbExchangeRate;
 import picocli.CommandLine;
 
@@ -17,7 +17,7 @@ public class ShowExchangeRateCommand extends ShowListOfObjectsCommand<ShowExchan
     protected String code;
 
     @Override
-    protected List<Rate> getData(CoinbaseClient c) {
+    protected List<Rate> getData(CoinbaseSyncClient c) {
         ArrayList<Rate> l = new ArrayList<>();
         CbExchangeRate r = code==null?c.getExchangeRate(): c.getExchangeRate(code);
         for(Map.Entry<String, Double> e : r.getRates().entrySet()){

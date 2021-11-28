@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.user;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.user.CbUser;
 import com.coinbase.domain.user.request.CbUserUpdateBuilder;
 import picocli.CommandLine;
@@ -23,7 +23,7 @@ public class UpdateUserCommand extends ShowUserCommand{
 
     @Override
     protected CbUser modify(CbUser u) {
-        CoinbaseClient client = CbClientWrapper.INSTANCE.getClient();
+        CoinbaseSyncClient client = CbClientWrapper.INSTANCE.getClient();
 
         CbUserUpdateBuilder builder = new CbUserUpdateBuilder(u);
         boolean hasParam = false;

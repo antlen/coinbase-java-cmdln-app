@@ -6,7 +6,6 @@ import com.coinbase.application.commands.LogJSONCommand;
 import com.coinbase.application.commands.LoginCommand;
 import com.coinbase.application.commands.address.AddressCommands;
 import com.coinbase.application.commands.exchange.ExchangeCommands;
-import com.coinbase.client.CoinbaseClient;
 import com.coinbase.application.commands.TimeZoneCommand;
 import com.coinbase.application.commands.accounts.AccountCommands;
 import com.coinbase.application.commands.deposit.DepositCommands;
@@ -14,6 +13,7 @@ import com.coinbase.application.commands.deposit.WithdrawalCommands;
 import com.coinbase.application.commands.price.PriceCommands;
 import com.coinbase.application.commands.transaction.PaymentMethodCommands;
 import com.coinbase.application.commands.user.UserCommands;
+import com.coinbase.client.CoinbaseSyncClient;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -56,7 +56,7 @@ public class CoinbaseCommandLineApp implements Runnable{
             System.out.println("Run 'login -s <secret> -a <API key>' to login.  Alternatively pass -DCbSecret -DCbAPIKey in the program args to auto login");
             System.out.println("***************************************************************");
         }
-        CoinbaseClient client = CbClientWrapper.INSTANCE.getClient();
+        CoinbaseSyncClient client = CbClientWrapper.INSTANCE.getClient();
         System.out.println("!!!!!!!!!!! WARNING --- CONNECTED TO LIVE PROD ACCOUNT !!!!!!!!!!! ");
 
         while(true) {

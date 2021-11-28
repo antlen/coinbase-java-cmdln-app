@@ -1,6 +1,6 @@
 package com.coinbase.application.commands.exchange;
 
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.address.CbAddressTransaction;
 import com.coinbase.domain.transaction.request.CbRequestMoneyRequestBuilder;
 import picocli.CommandLine;
@@ -21,7 +21,7 @@ public class RequestMoneyCommand extends AbstractTransactionCommand<CbRequestMon
     }
 
     @Override
-    protected CbAddressTransaction execute(CbRequestMoneyRequestBuilder b, CoinbaseClient c) {
+    protected CbAddressTransaction execute(CbRequestMoneyRequestBuilder b, CoinbaseSyncClient c) {
         return c.requestMoney(b.build());
     }
 

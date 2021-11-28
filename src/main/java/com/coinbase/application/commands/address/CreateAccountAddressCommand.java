@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.address;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.address.CbAddress;
 import com.coinbase.domain.address.request.CbCreateAddressRequest;
 import picocli.CommandLine;
@@ -17,7 +17,7 @@ public class CreateAccountAddressCommand extends ShowObjectCommand<CbAddress> {
     protected String name;
 
     @Override
-    protected CbAddress getData(CoinbaseClient c) {
+    protected CbAddress getData(CoinbaseSyncClient c) {
         return c.createAddress(new CbCreateAddressRequest(id, name));
     }
 

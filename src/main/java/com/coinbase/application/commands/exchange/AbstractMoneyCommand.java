@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.exchange;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.price.request.CbAmountRequestBuilder;
 import picocli.CommandLine;
 
@@ -17,10 +17,10 @@ public abstract class AbstractMoneyCommand<B extends CbAmountRequestBuilder, O> 
     protected String amount;
 
     protected abstract B build();
-    protected abstract O execute(B b, CoinbaseClient c);
+    protected abstract O execute(B b, CoinbaseSyncClient c);
 
     @Override
-    protected O getData(CoinbaseClient c) {
+    protected O getData(CoinbaseSyncClient c) {
         B b = build();
         b.setFrom(from);
         b.setAmount(amount);

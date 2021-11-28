@@ -1,7 +1,7 @@
 package com.coinbase.application.commands;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.exception.CbApiException;
 import picocli.CommandLine;
 
@@ -11,7 +11,7 @@ public abstract class ShowObjectCommand<T> implements Runnable {
     @CommandLine.Option(names = {"-verbose"}, description = "Show all details")
     Boolean verbose;
 
-    protected abstract T getData(CoinbaseClient c);
+    protected abstract T getData(CoinbaseSyncClient c);
 
     protected abstract String[] summarizeFields(T t);
 

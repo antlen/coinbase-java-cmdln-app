@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.transaction;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.transaction.payment.CbPaymentMethod;
 import picocli.CommandLine;
 
@@ -12,7 +12,7 @@ import java.util.List;
 public class ShowPaymentMethodsCommand extends ShowListOfObjectsCommand<CbPaymentMethod> {
 
     @Override
-    protected List getData(CoinbaseClient c) {
+    protected List getData(CoinbaseSyncClient c) {
         return c.getPaymentMethods();
     }
 

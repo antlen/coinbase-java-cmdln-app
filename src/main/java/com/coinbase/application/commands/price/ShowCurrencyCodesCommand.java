@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.price;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.price.CbCurrencyCode;
 import picocli.CommandLine;
 
@@ -12,7 +12,7 @@ import java.util.List;
 public class ShowCurrencyCodesCommand extends ShowListOfObjectsCommand<CbCurrencyCode> {
 
     @Override
-    protected List<CbCurrencyCode> getData(CoinbaseClient c) {
+    protected List<CbCurrencyCode> getData(CoinbaseSyncClient c) {
         return c.getCurrencyCodes();
     }
 

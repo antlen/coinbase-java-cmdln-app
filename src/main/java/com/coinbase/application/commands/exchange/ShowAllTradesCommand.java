@@ -3,7 +3,7 @@ package com.coinbase.application.commands.exchange;
 import static com.coinbase.util.ValidationUtils.*;
 
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CbTrade;
 import com.coinbase.domain.trade.CbTradeCollection;
 import com.coinbase.domain.trade.Side;
@@ -42,7 +42,7 @@ public class ShowAllTradesCommand extends ShowListOfObjectsCommand<CbTrade> {
     }
 
     @Override
-    protected Collection<CbTrade> getData(CoinbaseClient c) {
+    protected Collection<CbTrade> getData(CoinbaseSyncClient c) {
         CbTradeCollection res = new CbTradeCollection();
         if(tradeId !=null){
             for(Side s : getSides()){

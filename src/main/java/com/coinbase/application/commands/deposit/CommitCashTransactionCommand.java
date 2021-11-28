@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.application.cache.LocalCache;
 import com.coinbase.domain.trade.CbCashTransaction;
@@ -25,7 +25,7 @@ public abstract class CommitCashTransactionCommand extends ShowObjectCommand<CbC
     }
 
     @Override
-    protected CbCashTransaction getData(CoinbaseClient c) {
+    protected CbCashTransaction getData(CoinbaseSyncClient c) {
         CbCashTransaction t = LocalCache.CASH_TRANS_CACHE.get(id);
         if(t != null){
             t = c.commitCashTransaction(t);

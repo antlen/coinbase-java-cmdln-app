@@ -1,7 +1,7 @@
 package com.coinbase.application.commands;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.client.CoinbaseClient;
+import com.coinbase.client.CoinbaseSyncClient;
 import picocli.CommandLine;
 
 import java.util.Collection;
@@ -18,7 +18,7 @@ public abstract class ShowListOfObjectsCommand<T> implements Runnable{
     @CommandLine.Option(names = {"-filter"}, description = "Filter using this value.")
     protected String filter;
 
-    protected abstract Collection<T> getData(CoinbaseClient c);
+    protected abstract Collection<T> getData(CoinbaseSyncClient c);
 
     protected abstract boolean shouldDisplay(T t);
 
