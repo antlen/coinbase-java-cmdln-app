@@ -1,6 +1,9 @@
 package com.coinbase.application.commands.exchange;
 
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.domain.order.request.CbOrderRequest;
 import com.coinbase.domain.order.request.CbOrderRequestBuilder;
 import com.coinbase.util.ValidationUtils;
 import com.coinbase.application.cache.LocalCache;
@@ -31,14 +34,33 @@ public class PlaceOrderCommand extends AbstractMoneyCommand<CbOrderRequestBuilde
 
     @Override
     protected CbOrderRequestBuilder build() {
-        return new CbOrderRequestBuilder().setSide(Side.valueOf(side.toUpperCase())).
+        return new CbOrderRequestBuilder().
                 setPaymentMethod(pm).setCommit(commit);
     }
 
     @Override
+    protected void execute(CbOrderRequestBuilder r, CoinbaseASyncClient c,
+                           ResponseCallback<CbTrade> cb) {
+
+        if(Side.valueOf(side.toUpperCase()).isBuy()){
+            c.placeBuyOrder(cb, r.build());
+        }else{
+            c.placeSellOrder(cb, r.build());
+        }
+    }
+
+    @Override
     protected CbTrade execute(CbOrderRequestBuilder b, CoinbaseSyncClient c) {
-        CbTrade cbTrade = c.placeOrder(b.build());
+        CbTrade cbTrade = placeOrder(b.build(), c);
         LocalCache.TRADE_CACHE.put(cbTrade.getId(), cbTrade);
         return cbTrade;
+    }
+
+    private CbTrade placeOrder(CbOrderRequest order, CoinbaseSyncClient c){
+        if(Side.valueOf(side.toUpperCase()).isBuy()){
+            return c.placeBuyOrder(order);
+        }else{
+            return c.placeSellOrder(order);
+        }
     }
 }

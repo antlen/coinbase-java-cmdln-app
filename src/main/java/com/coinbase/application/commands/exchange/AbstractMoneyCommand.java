@@ -1,7 +1,9 @@
 package com.coinbase.application.commands.exchange;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.price.request.CbAmountRequestBuilder;
 import picocli.CommandLine;
 
@@ -18,6 +20,7 @@ public abstract class AbstractMoneyCommand<B extends CbAmountRequestBuilder, O> 
 
     protected abstract B build();
     protected abstract O execute(B b, CoinbaseSyncClient c);
+    protected abstract void execute(B b, CoinbaseASyncClient c, ResponseCallback<O> cb);
 
     @Override
     protected O getData(CoinbaseSyncClient c) {
@@ -27,5 +30,15 @@ public abstract class AbstractMoneyCommand<B extends CbAmountRequestBuilder, O> 
         b.setCurrency(currency);
 
         return execute(b, c);
+    }
+
+    @Override
+    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<O> cb) {
+        B b = build();
+        b.setFrom(from);
+        b.setAmount(amount);
+        b.setCurrency(currency);
+
+        execute(b, c, cb);
     }
 }

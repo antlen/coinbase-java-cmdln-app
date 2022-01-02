@@ -1,7 +1,9 @@
 package com.coinbase.application.commands.exchange;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CbTrade;
 import com.coinbase.domain.trade.Side;
 import com.coinbase.util.ValidationUtils;
@@ -36,13 +38,27 @@ public class CommitOrderCommand extends ShowObjectCommand<CbTrade> {
         if(t != null){
             t = c.commitOrder(t);
         }else{
-            if(side == null || account == null){
-                throw new NullPointerException("The trade is not in memory so need to specify side and account.");
-            }
+            validate();
             t = c.commitOrder(account, id, Side.valueOf(side.toUpperCase()));
         }
         LocalCache.TRADE_CACHE.put(t.getId(),t);
         return t;
     }
 
+    @Override
+    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<CbTrade> cb) {
+        CbTrade t = LocalCache.TRADE_CACHE.get(id);
+        if(t != null) {
+            c.commitOrder(cb, t);
+        }else{
+            validate();
+            c.commitOrder(cb,account, id, Side.valueOf(side.toUpperCase()));
+        }
+    }
+
+    private void validate() {
+        if(side == null || account == null){
+            throw new NullPointerException("The trade is not in memory so need to specify side and account.");
+        }
+    }
 }

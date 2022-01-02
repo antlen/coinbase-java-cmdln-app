@@ -1,7 +1,9 @@
 package com.coinbase.application.commands.price;
 
+import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.util.ValidationUtils;
 import com.coinbase.domain.price.CbPrice;
 import com.coinbase.domain.price.PriceType;
@@ -9,8 +11,8 @@ import picocli.CommandLine;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @CommandLine.Command(name = "show", description = "displays a price for the given pair.",
         mixinStandardHelpOptions = true)
@@ -33,19 +35,18 @@ public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
     protected String date;
 
     @Override
-    protected List<CbPrice> getData(CoinbaseSyncClient client) {
-        List<CbPrice> prices = new ArrayList<>();
+    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbPrice> cb) {
+       Cb myCb = new Cb(cb);
         if(buy){
-            prices.add(client.getPrice(PriceType.BUY, pair));
+            c.fetchPrice(myCb, PriceType.BUY, pair);
         }
         if(sell){
-            prices.add(client.getPrice(PriceType.SELL, pair));
+            c.fetchPrice(myCb, PriceType.SELL, pair);
         }
         if(spot){
             LocalDate d = date==null?null: LocalDate.parse(date, PRICE_DATE_FORMAT);
-            prices.add(client.getSpotPrice(pair, d));
+            c.fetchSpotPrice(myCb, pair, d);
         }
-        return prices;
     }
 
     @Override
@@ -59,5 +60,23 @@ public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
                 ValidationUtils.valueOrEmpty(cbPrice.getType(), t -> t.toString()),
                 cbPrice.getCurrency(),
                 ValidationUtils.valueOrEmpty(cbPrice.getAmount(), t -> Double.toString(t)) };
+    }
+
+    private class Cb implements ResponseCallback<CbPrice>{
+        private final CommandCallback<CbPrice> cb;
+
+        public Cb(CommandCallback<CbPrice> cb) {
+            this.cb = cb;
+        }
+
+        @Override
+        public void completed(CbPrice cbPrice) {
+            cb.completed(Arrays.stream(new CbPrice[]{cbPrice}).collect(Collectors.toList()));
+        }
+
+        @Override
+        public void failed(Throwable throwable) {
+            throwable.printStackTrace();
+        }
     }
 }

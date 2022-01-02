@@ -2,23 +2,18 @@ package com.coinbase.application.commands.exchange;
 
 import static com.coinbase.util.ValidationUtils.*;
 
+import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.domain.trade.CbTrade;
-import com.coinbase.domain.trade.CbTradeCollection;
 import com.coinbase.domain.trade.Side;
 import picocli.CommandLine;
-
-import java.util.Collection;
 
 @CommandLine.Command(name = "show_trades", description = "lists all trades for the account.",
         mixinStandardHelpOptions = true)
 public class ShowAllTradesCommand extends ShowListOfObjectsCommand<CbTrade> {
     @CommandLine.Option(names = {"-account"}, description = "The account containaing the trade.", required = true)
     protected String account;
-
-    @CommandLine.Option(names = {"-tradeId"}, description = "The account containaing the trade.")
-    protected String tradeId;
 
     @CommandLine.Option(names = {"-buy"}, description = "Get buy trades")
     protected boolean buy;
@@ -42,19 +37,10 @@ public class ShowAllTradesCommand extends ShowListOfObjectsCommand<CbTrade> {
     }
 
     @Override
-    protected Collection<CbTrade> getData(CoinbaseSyncClient c) {
-        CbTradeCollection res = new CbTradeCollection();
-        if(tradeId !=null){
-            for(Side s : getSides()){
-                res.add(c.getTrade(account, tradeId, s));
-            }
-        }else{
-            for(Side s : getSides()){
-                res.add(c.getTrades(account, s));
-            }
+    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbTrade> cb) {
+        for(Side s : getSides()){
+            c.fetchTrades(cb, account, s);
         }
-
-       return res.toCollection();
     }
 
     @Override

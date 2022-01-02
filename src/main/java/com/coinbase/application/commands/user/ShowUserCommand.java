@@ -1,7 +1,9 @@
 package com.coinbase.application.commands.user;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.user.CbUser;
 import picocli.CommandLine;
 
@@ -17,6 +19,13 @@ public class ShowUserCommand extends ShowObjectCommand<CbUser> {
     @Override
     protected CbUser getData(CoinbaseSyncClient client) {
         return id == null ? client.getUser() : client.getUser(id);
+    }
+
+    @Override
+    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<CbUser> cb) {
+        if(id == null){
+            c.fetchUser(cb);
+        } else c.fetchUser(cb, id);
     }
 
     @Override

@@ -1,12 +1,11 @@
 package com.coinbase.application.commands.deposit;
 
+import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.domain.trade.CbCashTransaction;
 import picocli.CommandLine;
-
-import java.util.Collection;
 
 public abstract class ShowAllCashTransactionsCommand extends ShowListOfObjectsCommand<CbCashTransaction> {
 
@@ -18,9 +17,10 @@ public abstract class ShowAllCashTransactionsCommand extends ShowListOfObjectsCo
         this.type = type;
     }
 
+
     @Override
-    protected Collection<CbCashTransaction> getData(CoinbaseSyncClient c) {
-        return c.getCashTransaction(account, type);
+    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbCashTransaction> cb) {
+        c.fetchCashTransactions(cb, account, type);
     }
 
     @Override

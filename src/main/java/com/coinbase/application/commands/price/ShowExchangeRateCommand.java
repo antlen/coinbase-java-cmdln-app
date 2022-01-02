@@ -1,12 +1,13 @@
 package com.coinbase.application.commands.price;
 
+import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.domain.price.CbExchangeRate;
 import picocli.CommandLine;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @CommandLine.Command(name = "rates", description = "displays the exchange rates for the given currency (defaults to BTC).",
@@ -17,13 +18,22 @@ public class ShowExchangeRateCommand extends ShowListOfObjectsCommand<ShowExchan
     protected String code;
 
     @Override
-    protected List<Rate> getData(CoinbaseSyncClient c) {
-        ArrayList<Rate> l = new ArrayList<>();
-        CbExchangeRate r = code==null?c.getExchangeRate(): c.getExchangeRate(code);
-        for(Map.Entry<String, Double> e : r.getRates().entrySet()){
-            l.add(new Rate(e.getKey(), e.getValue()));
-        }
-        return l;
+    protected void fetchData(CoinbaseASyncClient c, CommandCallback<Rate> cb) {
+        c.fetchExchangeRate(new ResponseCallback<>() {
+            @Override
+            public void completed(CbExchangeRate r) {
+                ArrayList<Rate> l = new ArrayList<>();
+                for(Map.Entry<String, Double> e : r.getRates().entrySet()){
+                    l.add(new Rate(e.getKey(), e.getValue()));
+                }
+                cb.pagedResults(l, false);
+            }
+
+            @Override
+            public void failed(Throwable throwable) {
+                cb.failed(throwable);
+            }
+        },code);
     }
 
     @Override

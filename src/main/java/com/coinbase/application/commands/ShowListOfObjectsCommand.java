@@ -1,7 +1,7 @@
 package com.coinbase.application.commands;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import picocli.CommandLine;
 
 import java.util.Collection;
@@ -18,7 +18,7 @@ public abstract class ShowListOfObjectsCommand<T> implements Runnable{
     @CommandLine.Option(names = {"-filter"}, description = "Filter using this value.")
     protected String filter;
 
-    protected abstract Collection<T> getData(CoinbaseSyncClient c);
+    protected abstract void fetchData(CoinbaseASyncClient c, CommandCallback<T> cb);
 
     protected abstract boolean shouldDisplay(T t);
 
@@ -26,21 +26,26 @@ public abstract class ShowListOfObjectsCommand<T> implements Runnable{
 
     @Override
     public final void run() {
-        Collection<T> data = getData(CbClientWrapper.INSTANCE.getClient());
-        boolean showAll = (all !=null && all);
-        boolean verbose = (this.verbose !=null && this.verbose);
-        for(T d : data){
-            if(showAll || shouldDisplay(d)){
-                if(verbose){
-                    System.out.println(d);
-                }else{
-                    StringBuilder b = new StringBuilder();
-                    for(String f : summarizeFields(d)){
-                        b.append(DELIMITER).append(f);
+        fetchData(CbClientWrapper.INSTANCE.getAsyncClient(),new CommandCallback<T>(){
+            @Override
+            public void response(Collection<T> data, final int count) {
+                boolean showAll = (all !=null && all);
+                boolean isVerbose = (verbose !=null && verbose);
+                for(T d : data){
+                    if(showAll || shouldDisplay(d)){
+                        if(isVerbose){
+                            System.out.println("("+count + ")" +d);
+                        }else{
+                            StringBuilder b = new StringBuilder();
+                            for(String f : summarizeFields(d)){
+                                b.append(DELIMITER).append(f);
+                            }
+                            System.out.println("("+count + ")" +b);
+                        }
                     }
-                    System.out.println(b.toString());
                 }
             }
-        }
+        });
     }
+
 }

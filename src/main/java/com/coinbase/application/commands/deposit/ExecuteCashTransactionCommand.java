@@ -2,7 +2,9 @@ package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.exchange.AbstractMoneyCommand;
 
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.application.cache.LocalCache;
 import com.coinbase.domain.trade.CbCashTransaction;
@@ -35,9 +37,25 @@ public abstract class ExecuteCashTransactionCommand extends AbstractMoneyCommand
 
     @Override
     protected CbCashTransaction execute(CbCashTransactionRequestBuilder b, CoinbaseSyncClient c) {
-        CbCashTransaction d = c.executeCashTransaction(b.build());
+        CbCashTransaction d = c.executeCashTransaction(b.build(), type);
         LocalCache.CASH_TRANS_CACHE.put(d.getId(), d);
         return d;
+    }
+
+    @Override
+    protected void execute(CbCashTransactionRequestBuilder b, CoinbaseASyncClient c, ResponseCallback<CbCashTransaction> cb) {
+        c.executeCashTransaction(new ResponseCallback<CbCashTransaction>() {
+            @Override
+            public void completed(CbCashTransaction d) {
+                LocalCache.CASH_TRANS_CACHE.put(d.getId(), d);
+                cb.completed(d);
+            }
+
+            @Override
+            public void failed(Throwable throwable) {
+                cb.failed(throwable);
+            }
+        }, b.build(), type);
     }
 
     @CommandLine.Command(name = "execute",  description = "executes a deposit",

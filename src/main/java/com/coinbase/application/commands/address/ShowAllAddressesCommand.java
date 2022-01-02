@@ -1,11 +1,10 @@
 package com.coinbase.application.commands.address;
 
+import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.domain.address.CbAddress;
 import picocli.CommandLine;
-
-import java.util.List;
 
 @CommandLine.Command(name = "list", description = "lists all addresses for the account.",
         mixinStandardHelpOptions = true)
@@ -14,8 +13,8 @@ public class ShowAllAddressesCommand extends ShowListOfObjectsCommand<CbAddress>
     protected String id;
 
     @Override
-    protected List<CbAddress> getData(CoinbaseSyncClient c) {
-        return c.getAddresses(id);
+    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbAddress> cb) {
+        c.fetchAddresses(cb, id);
     }
 
     @Override

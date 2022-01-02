@@ -1,7 +1,7 @@
 package com.coinbase.application.commands.user;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.user.CbUser;
 import com.coinbase.domain.user.request.CbUserUpdateBuilder;
 import picocli.CommandLine;

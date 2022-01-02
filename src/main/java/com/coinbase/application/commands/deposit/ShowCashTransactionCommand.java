@@ -1,7 +1,9 @@
 package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.domain.trade.CbCashTransaction;
 import picocli.CommandLine;
@@ -21,6 +23,11 @@ public abstract class ShowCashTransactionCommand extends ShowObjectCommand<CbCas
     @Override
     protected CbCashTransaction getData(CoinbaseSyncClient c) {
         return c.getCashTransaction(account, id, type);
+    }
+
+    @Override
+    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<CbCashTransaction> cb) {
+        c.fetchCashTransaction(cb, account, id, type);
     }
 
     @Override

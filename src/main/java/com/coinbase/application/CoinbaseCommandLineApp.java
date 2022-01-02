@@ -13,7 +13,7 @@ import com.coinbase.application.commands.deposit.WithdrawalCommands;
 import com.coinbase.application.commands.price.PriceCommands;
 import com.coinbase.application.commands.transaction.PaymentMethodCommands;
 import com.coinbase.application.commands.user.UserCommands;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -65,15 +65,16 @@ public class CoinbaseCommandLineApp implements Runnable{
             String command = null;
             try {
                 command = reader.readLine();
+
+                String[] params = command.split(" ");
+                CommandLine cl = params[0]==null?null: commands.get(params[0]);
+                if(cl == null){
+                    System.out.println("Invalid command.Run 'help' for the command list.");
+                }else{
+                    cl.execute(Arrays.copyOfRange(params, 1, params.length));
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            }
-            String[] params = command.split(" ");
-            CommandLine cl = params[0]==null?null: commands.get(params[0]);
-            if(cl == null){
-                System.out.println("Invalid command.Run 'help' for the command list.");
-            }else{
-                cl.execute(Arrays.copyOfRange(params, 1, params.length));
             }
         }
     }
@@ -91,6 +92,7 @@ public class CoinbaseCommandLineApp implements Runnable{
                 boolean logJSON = (tmp==null)?false:Boolean.parseBoolean(tmp.trim());
                 if(logJSON){
                     CbClientWrapper.INSTANCE.getClient().setLogResponsesEnabled(logJSON);
+                    CbClientWrapper.INSTANCE.getAsyncClient().setLogResponsesEnabled(logJSON);
                 }
                 return true;
             }

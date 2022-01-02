@@ -1,7 +1,9 @@
 package com.coinbase.application.commands.address;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.address.CbAddress;
 import picocli.CommandLine;
 
@@ -18,6 +20,11 @@ public class ShowAccountAddressCommand extends ShowObjectCommand<CbAddress> {
     @Override
     protected CbAddress getData(CoinbaseSyncClient c) {
         return c.getAddress(id, address);
+    }
+
+    @Override
+    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<CbAddress> cb) {
+        c.fetchAddress(cb, id, address);
     }
 
     @Override

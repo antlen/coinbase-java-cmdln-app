@@ -1,19 +1,18 @@
 package com.coinbase.application.commands.accounts;
 
+import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.domain.account.CbAccount;
 import picocli.CommandLine;
-
-import java.util.List;
 
 @CommandLine.Command(name = "list", description = "lists all accounts.",
         mixinStandardHelpOptions = true)
 public class ShowAllAccountsCommand extends ShowListOfObjectsCommand<CbAccount> {
 
     @Override
-    protected List<CbAccount> getData(CoinbaseSyncClient c) {
-        return c.getAccounts();
+    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbAccount> cb) {
+        c.fetchAccounts(cb);
     }
 
     @Override

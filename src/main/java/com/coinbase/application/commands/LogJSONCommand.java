@@ -13,6 +13,7 @@ public class LogJSONCommand implements Runnable{
     public void run(){
         boolean e = disable==null || !disable;
         CbClientWrapper.INSTANCE.getClient().setLogResponsesEnabled(e);
+        CbClientWrapper.INSTANCE.getAsyncClient().setLogResponsesEnabled(e);
         System.out.println("JSON logging is turned " +(e?"ON":"OFF"));
     }
 }

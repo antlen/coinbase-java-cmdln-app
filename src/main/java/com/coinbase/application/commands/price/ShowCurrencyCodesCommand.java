@@ -1,19 +1,18 @@
 package com.coinbase.application.commands.price;
 
+import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.client.async.CoinbaseASyncClient;
 import com.coinbase.domain.price.CbCurrencyCode;
 import picocli.CommandLine;
-
-import java.util.List;
 
 @CommandLine.Command(name = "currencies", description = "lists all available currencies.",
         mixinStandardHelpOptions = true)
 public class ShowCurrencyCodesCommand extends ShowListOfObjectsCommand<CbCurrencyCode> {
 
     @Override
-    protected List<CbCurrencyCode> getData(CoinbaseSyncClient c) {
-        return c.getCurrencyCodes();
+    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbCurrencyCode> cb) {
+        c.fetchCurrencyCodes(cb);
     }
 
     @Override

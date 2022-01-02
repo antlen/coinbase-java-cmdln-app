@@ -1,7 +1,9 @@
 package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.client.CoinbaseSyncClient;
+import com.coinbase.callback.ResponseCallback;
+import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.sync.CoinbaseSyncClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.application.cache.LocalCache;
 import com.coinbase.domain.trade.CbCashTransaction;
@@ -30,13 +32,29 @@ public abstract class CommitCashTransactionCommand extends ShowObjectCommand<CbC
         if(t != null){
             t = c.commitCashTransaction(t);
         }else{
-            if(account == null){
-                throw new NullPointerException("The deposit is not in memory so need to specify side and account.");
-            }
+            validate();
             t = c.commitCashTransaction(account, id, type);
         }
         LocalCache.CASH_TRANS_CACHE.put(t.getId(), t);
         return t;
+    }
+
+    @Override
+    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<CbCashTransaction> cb) {
+        CbCashTransaction t = LocalCache.CASH_TRANS_CACHE.get(id);
+        if(t != null){
+            c.commitCashTransaction(cb, t);
+        }else{
+            validate();
+             c.commitCashTransaction(cb, account, id, type);
+        }
+        LocalCache.CASH_TRANS_CACHE.put(t.getId(), t);
+    }
+
+    private void validate() {
+        if(account == null){
+            throw new NullPointerException("The deposit is not in memory so need to specify side and account.");
+        }
     }
 
     @CommandLine.Command(name = "commit",  description = "commits an order",
