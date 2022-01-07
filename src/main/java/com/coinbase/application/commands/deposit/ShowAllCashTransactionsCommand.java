@@ -2,12 +2,13 @@ package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.CoinbaseAsyncRestClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.domain.trade.CbCashTransaction;
+import com.coinbase.domain.trade.response.CbCashTransactionListResponse;
 import picocli.CommandLine;
 
-public abstract class ShowAllCashTransactionsCommand extends ShowListOfObjectsCommand<CbCashTransaction> {
+public abstract class ShowAllCashTransactionsCommand extends ShowListOfObjectsCommand<CbCashTransaction,CbCashTransactionListResponse> {
 
     @CommandLine.Option(names = {"-account"}, description = "The account id.", required = true)
     protected String account;
@@ -19,8 +20,8 @@ public abstract class ShowAllCashTransactionsCommand extends ShowListOfObjectsCo
 
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbCashTransaction> cb) {
-        c.fetchCashTransactions(cb, account, type);
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<CbCashTransactionListResponse> cb) {
+        c.fetchCashTransactions(account, type, cb);
     }
 
     @Override

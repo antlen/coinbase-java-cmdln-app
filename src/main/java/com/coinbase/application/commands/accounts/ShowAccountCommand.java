@@ -1,31 +1,31 @@
 package com.coinbase.application.commands.accounts;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
-import com.coinbase.client.sync.CoinbaseSyncClient;
-import com.coinbase.domain.account.CbAccount;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.client.CoinbaseRestClient;
+import com.coinbase.domain.account.response.CbAccountResponse;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "show", description = "displays an account for the given id.",
         mixinStandardHelpOptions = true)
-public class ShowAccountCommand extends ShowObjectCommand<CbAccount> {
+public class ShowAccountCommand extends ShowObjectCommand<CbAccountResponse> {
 
     @CommandLine.Option(names = {"-account"}, description = "The account id.", required = true)
     protected String account;
 
     @Override
-    protected CbAccount getData(CoinbaseSyncClient c) {
+    protected CbAccountResponse getData(CoinbaseRestClient c) {
         return c.getAccount(account);
     }
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<CbAccount> cb) {
-        c.fetchAccount(cb, account);
+    protected void fetchData(CoinbaseAsyncRestClient c, CoinbaseCallback<CbAccountResponse> cb) {
+        c.fetchAccount(account, cb);
     }
 
     @Override
-    protected String[] summarizeFields(CbAccount a) {
-        return AccountCommands.summarizeFields(a);
+    protected String[] summarizeFields(CbAccountResponse a) {
+        return AccountCommands.summarizeFields(a.getData());
     }
 }

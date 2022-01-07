@@ -1,9 +1,9 @@
 package com.coinbase.application.commands;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
-import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.client.CoinbaseRestClient;
 import com.coinbase.exception.CbApiException;
 import picocli.CommandLine;
 
@@ -16,9 +16,9 @@ public abstract class ShowObjectCommand<T> implements Runnable {
     @CommandLine.Option(names = {"-sync"}, description = "Request using a synchronized call.")
     boolean sync;
 
-    protected abstract T getData(CoinbaseSyncClient c);
+    protected abstract T getData(CoinbaseRestClient c);
 
-    protected abstract void fetchData(CoinbaseASyncClient c, ResponseCallback<T> cb);
+    protected abstract void fetchData(CoinbaseAsyncRestClient c, CoinbaseCallback<T> cb);
 
     protected abstract String[] summarizeFields(T t);
 
@@ -45,9 +45,9 @@ public abstract class ShowObjectCommand<T> implements Runnable {
     }
 
     private void async() {
-        fetchData(CbClientWrapper.INSTANCE.getAsyncClient(), new ResponseCallback<T>() {
+        fetchData(CbClientWrapper.INSTANCE.getAsyncClient(), new CoinbaseCallback<T>() {
             @Override
-            public void completed(T t) {
+            public void onResponse(T t, boolean moreToCome) {
                 print(t);
             }
 

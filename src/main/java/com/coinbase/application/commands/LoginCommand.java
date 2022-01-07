@@ -1,15 +1,13 @@
 package com.coinbase.application.commands;
 
-import com.coinbase.application.CoinbaseCommandLineApp;
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
-import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.client.CoinbaseRestClient;
 import com.coinbase.domain.system.CbTime;
+import com.coinbase.domain.system.response.CbTimeResponse;
 import picocli.CommandLine;
 
-import javax.ws.rs.client.InvocationCallback;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -35,7 +33,7 @@ public class LoginCommand{
 
         @Override
         public void run() {
-            CoinbaseSyncClient c = CbClientWrapper.INSTANCE.init(api, secret.getBytes());
+            CoinbaseRestClient c = CbClientWrapper.INSTANCE.init(api, secret.getBytes());
 
             ping(c, CbClientWrapper.INSTANCE.getAsyncClient());
         }
@@ -45,8 +43,8 @@ public class LoginCommand{
     public static class Reconnect implements Runnable{
         @Override
         public void run() {
-            CoinbaseSyncClient c  = CbClientWrapper.INSTANCE.getClient();
-            CoinbaseASyncClient a  = CbClientWrapper.INSTANCE.getAsyncClient();
+            CoinbaseRestClient c  = CbClientWrapper.INSTANCE.getClient();
+            CoinbaseAsyncRestClient a  = CbClientWrapper.INSTANCE.getAsyncClient();
             if(c == null){
                 throw new NullPointerException("Please init the client (login) before running reconnect.");
             }
@@ -55,26 +53,26 @@ public class LoginCommand{
         }
     }
 
-    private static void ping(CoinbaseSyncClient client, CoinbaseASyncClient aSyncClient){
+    private static void ping(CoinbaseRestClient client, CoinbaseAsyncRestClient aSyncClient){
         System.out.println("******Logged into Coinbase API.***********");
         logTime(client, aSyncClient);
     }
 
-    private static void logTime(CoinbaseSyncClient client, CoinbaseASyncClient aSyncClient){
+    private static void logTime(CoinbaseRestClient client, CoinbaseAsyncRestClient aSyncClient){
 
         aSyncClient.fetchServerTime(new Cb());
     }
 
-    private static class Cb implements ResponseCallback<CbTime> {
+    private static class Cb implements CoinbaseCallback<CbTimeResponse> {
         private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         private final String before = LocalDateTime.now().format(formatter);
         private static int INDEX = 0;
         private final int myIndex = INDEX++;
         @Override
-        public void completed(CbTime time) {
+        public void onResponse(CbTimeResponse time, boolean more) {
 
             DateTimeFormatter fromIso = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            LocalDateTime serverTime = LocalDateTime.parse(time.getIso(),fromIso);
+            LocalDateTime serverTime = LocalDateTime.parse(time.getData().getIso(),fromIso);
 
             System.out.println("("+myIndex+") Local Time: " + before);
             System.out.println("("+myIndex+") Server Time: " + serverTime.format(formatter));

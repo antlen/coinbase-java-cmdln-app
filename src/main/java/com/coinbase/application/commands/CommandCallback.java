@@ -1,19 +1,13 @@
 package com.coinbase.application.commands;
 
-import com.coinbase.callback.PaginatedCollectionCallback;
-import com.coinbase.callback.ResponseCallback;
+import com.coinbase.callback.CoinbaseCallback;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class CommandCallback<T> implements PaginatedCollectionCallback<T>,
-        ResponseCallback<Collection<T>> {
+public abstract class CommandCallback<T> implements
+        CoinbaseCallback<T> {
     private final AtomicInteger count = new AtomicInteger();
-
-    @Override
-    public final void pagedResults(Collection<T> response, boolean moreToCome) {
-        response(response, count.getAndIncrement());
-    }
 
     @Override
     public final void failed(Throwable throwable) {
@@ -21,9 +15,9 @@ public abstract class CommandCallback<T> implements PaginatedCollectionCallback<
     }
 
     @Override
-    public final void completed(Collection<T> response) {
+    public void onResponse(T response, boolean moreToCome) {
         response(response, count.getAndIncrement());
     }
 
-    public abstract void response(Collection<T> response, int count);
+    public abstract void response(T response, int count);
 }

@@ -1,10 +1,12 @@
 package com.coinbase.application.commands.exchange;
 
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
-import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.client.CoinbaseRestClient;
 import com.coinbase.domain.order.request.CbOrderRequest;
 import com.coinbase.domain.order.request.CbOrderRequestBuilder;
+import com.coinbase.domain.trade.response.CbTradeListResponse;
+import com.coinbase.domain.trade.response.CbTradeResponse;
 import com.coinbase.util.ValidationUtils;
 import com.coinbase.application.cache.LocalCache;
 import com.coinbase.domain.trade.CbTrade;
@@ -13,7 +15,7 @@ import picocli.CommandLine;
 
 @CommandLine.Command(name = "order",  description = "places an order",
         mixinStandardHelpOptions = true)
-public class PlaceOrderCommand extends AbstractMoneyCommand<CbOrderRequestBuilder, CbTrade> {
+public class PlaceOrderCommand extends AbstractMoneyCommand<CbOrderRequestBuilder, CbTradeResponse> {
     @CommandLine.Option(names = {"-side"}, description = "buy or sell", required = true)
     protected String side;
 
@@ -24,7 +26,8 @@ public class PlaceOrderCommand extends AbstractMoneyCommand<CbOrderRequestBuilde
     protected boolean commit;
 
     @Override
-    protected String[] summarizeFields(CbTrade a) {
+    protected String[] summarizeFields(CbTradeResponse response) {
+        CbTrade a = response.getData();
         return new String[]{a.getCreatedAt(), a.getId(),a.getStatus(),
                 ValidationUtils.valueOrEmpty(a.getSide(), t -> t.toString()),
                 ValidationUtils.valueOrEmpty(a.getAmount(), t -> t.getCurrency()),
@@ -39,28 +42,28 @@ public class PlaceOrderCommand extends AbstractMoneyCommand<CbOrderRequestBuilde
     }
 
     @Override
-    protected void execute(CbOrderRequestBuilder r, CoinbaseASyncClient c,
-                           ResponseCallback<CbTrade> cb) {
+    protected void execute(CbOrderRequestBuilder r, CoinbaseAsyncRestClient c,
+                           CoinbaseCallback<CbTradeResponse> cb) {
 
         if(Side.valueOf(side.toUpperCase()).isBuy()){
-            c.placeBuyOrder(cb, r.build());
+            c.placeBuyOrder(from, r.build(), cb);
         }else{
-            c.placeSellOrder(cb, r.build());
+            c.placeSellOrder(from, r.build(), cb);
         }
     }
 
     @Override
-    protected CbTrade execute(CbOrderRequestBuilder b, CoinbaseSyncClient c) {
-        CbTrade cbTrade = placeOrder(b.build(), c);
-        LocalCache.TRADE_CACHE.put(cbTrade.getId(), cbTrade);
+    protected CbTradeResponse execute(CbOrderRequestBuilder b, CoinbaseRestClient c) {
+        CbTradeResponse cbTrade = placeOrder(b.build(), c);
+        LocalCache.TRADE_CACHE.put(cbTrade.getData().getId(), cbTrade);
         return cbTrade;
     }
 
-    private CbTrade placeOrder(CbOrderRequest order, CoinbaseSyncClient c){
+    private CbTradeResponse placeOrder(CbOrderRequest order, CoinbaseRestClient c){
         if(Side.valueOf(side.toUpperCase()).isBuy()){
-            return c.placeBuyOrder(order);
+            return c.placeBuyOrder(from, order);
         }else{
-            return c.placeSellOrder(order);
+            return c.placeSellOrder(from,order);
         }
     }
 }

@@ -2,16 +2,17 @@ package com.coinbase.application.commands.price;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.CoinbaseAsyncRestClient;
 import com.coinbase.domain.price.CbCurrencyCode;
+import com.coinbase.domain.price.response.CbCurrencyCodeListResponse;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "currencies", description = "lists all available currencies.",
         mixinStandardHelpOptions = true)
-public class ShowCurrencyCodesCommand extends ShowListOfObjectsCommand<CbCurrencyCode> {
+public class ShowCurrencyCodesCommand extends ShowListOfObjectsCommand<CbCurrencyCode, CbCurrencyCodeListResponse> {
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbCurrencyCode> cb) {
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<CbCurrencyCodeListResponse> cb) {
         c.fetchCurrencyCodes(cb);
     }
 

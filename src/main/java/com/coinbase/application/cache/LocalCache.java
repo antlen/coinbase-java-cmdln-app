@@ -3,6 +3,8 @@ package com.coinbase.application.cache;
 
 import com.coinbase.domain.trade.CbCashTransaction;
 import com.coinbase.domain.trade.CbTrade;
+import com.coinbase.domain.trade.response.CbCashTransactionResponse;
+import com.coinbase.domain.trade.response.CbTradeResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LocalCache<T> {
     private static final Map<Class<?>, LocalCache> CACHES = new ConcurrentHashMap<>();
 
-    public static LocalCache<CbTrade> TRADE_CACHE = getCache(CbTrade.class);
-    public static LocalCache<CbCashTransaction> CASH_TRANS_CACHE = getCache(CbCashTransaction.class);
+    public static LocalCache<CbTradeResponse> TRADE_CACHE = getCache(CbTradeResponse.class);
+    public static LocalCache<CbCashTransactionResponse> CASH_TRANS_CACHE = getCache(CbCashTransactionResponse.class);
 
     private LocalCache(){}
 

@@ -2,14 +2,15 @@ package com.coinbase.application.commands.transaction;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.CoinbaseAsyncRestClient;
 import com.coinbase.domain.address.CbAddressTransaction;
+import com.coinbase.domain.address.response.CbAddressTransactionListResponse;
 import com.coinbase.util.ValidationUtils;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "transactions",  description = "shows all payment methods.",
         mixinStandardHelpOptions = true)
-public class ShowAddressTransactionsCommand extends ShowListOfObjectsCommand<CbAddressTransaction> {
+public class ShowAddressTransactionsCommand extends ShowListOfObjectsCommand<CbAddressTransaction, CbAddressTransactionListResponse> {
     @CommandLine.Option(names = {"-account"}, description = "The id of the account of the addresses.", required = true)
     protected String acc;
 
@@ -17,8 +18,8 @@ public class ShowAddressTransactionsCommand extends ShowListOfObjectsCommand<CbA
     protected String add;
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbAddressTransaction> cb) {
-        c.fetchTransactions(cb, acc, add);
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<CbAddressTransactionListResponse> cb) {
+        c.fetchTransactions( acc, add, cb);
     }
 
     @Override

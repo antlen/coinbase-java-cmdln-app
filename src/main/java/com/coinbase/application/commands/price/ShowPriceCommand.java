@@ -2,8 +2,10 @@ package com.coinbase.application.commands.price;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.domain.general.response.ResponseBody;
+import com.coinbase.domain.price.response.CbPriceResponse;
 import com.coinbase.util.ValidationUtils;
 import com.coinbase.domain.price.CbPrice;
 import com.coinbase.domain.price.PriceType;
@@ -12,11 +14,12 @@ import picocli.CommandLine;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @CommandLine.Command(name = "show", description = "displays a price for the given pair.",
         mixinStandardHelpOptions = true)
-public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
+public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice, ShowPriceCommand.Prices> {
     private static DateTimeFormatter PRICE_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @CommandLine.Option(names = {"-pair"}, description = "The currency pair.", required = true)
@@ -35,17 +38,17 @@ public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
     protected String date;
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbPrice> cb) {
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<Prices> cb) {
        Cb myCb = new Cb(cb);
         if(buy){
-            c.fetchPrice(myCb, PriceType.BUY, pair);
+            c.fetchPrice(PriceType.BUY, pair, myCb);
         }
         if(sell){
-            c.fetchPrice(myCb, PriceType.SELL, pair);
+            c.fetchPrice(PriceType.SELL, pair, myCb);
         }
         if(spot){
             LocalDate d = date==null?null: LocalDate.parse(date, PRICE_DATE_FORMAT);
-            c.fetchSpotPrice(myCb, pair, d);
+            c.fetchSpotPrice(pair, d, myCb);
         }
     }
 
@@ -62,21 +65,35 @@ public class ShowPriceCommand extends ShowListOfObjectsCommand<CbPrice> {
                 ValidationUtils.valueOrEmpty(cbPrice.getAmount(), t -> Double.toString(t)) };
     }
 
-    private class Cb implements ResponseCallback<CbPrice>{
-        private final CommandCallback<CbPrice> cb;
+    private class Cb implements CoinbaseCallback<CbPriceResponse> {
+        private final CommandCallback<Prices> cb;
 
-        public Cb(CommandCallback<CbPrice> cb) {
+        public Cb(CommandCallback<Prices> cb) {
             this.cb = cb;
         }
 
         @Override
-        public void completed(CbPrice cbPrice) {
-            cb.completed(Arrays.stream(new CbPrice[]{cbPrice}).collect(Collectors.toList()));
+        public void onResponse(CbPriceResponse cbPriceResponse, boolean moreToCome) {
+            cb.onResponse(new Prices(
+                    Arrays.stream(new CbPrice[]{cbPriceResponse.getData()}).collect(Collectors.toList())), false);
         }
 
         @Override
         public void failed(Throwable throwable) {
             throwable.printStackTrace();
+        }
+    }
+
+    public class Prices implements ResponseBody<List<CbPrice>> {
+        private List<CbPrice> prices;
+
+        public Prices(List<CbPrice> rates) {
+            this.prices = prices;
+        }
+
+        @Override
+        public List<CbPrice> getData() {
+            return prices;
         }
     }
 }

@@ -2,38 +2,41 @@ package com.coinbase.application.commands.price;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.domain.general.response.ResponseBody;
 import com.coinbase.domain.price.CbExchangeRate;
+import com.coinbase.domain.price.response.CbExchangeRateResponse;
 import picocli.CommandLine;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @CommandLine.Command(name = "rates", description = "displays the exchange rates for the given currency (defaults to BTC).",
         mixinStandardHelpOptions = true)
-public class ShowExchangeRateCommand extends ShowListOfObjectsCommand<ShowExchangeRateCommand.Rate> {
+public class ShowExchangeRateCommand extends ShowListOfObjectsCommand<ShowExchangeRateCommand.Rate, ShowExchangeRateCommand.RateList> {
 
     @CommandLine.Option(names = {"-code"}, description = "The currency code.")
     protected String code;
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<Rate> cb) {
-        c.fetchExchangeRate(new ResponseCallback<>() {
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<RateList> cb) {
+        c.fetchExchangeRate(code, new CoinbaseCallback<>() {
             @Override
-            public void completed(CbExchangeRate r) {
+            public void onResponse(CbExchangeRateResponse r, boolean moreToCome) {
                 ArrayList<Rate> l = new ArrayList<>();
-                for(Map.Entry<String, Double> e : r.getRates().entrySet()){
+                for(Map.Entry<String, Double> e : r.getData().getRates().entrySet()){
                     l.add(new Rate(e.getKey(), e.getValue()));
                 }
-                cb.pagedResults(l, false);
+                cb.onResponse(new RateList(l), false);
             }
 
             @Override
             public void failed(Throwable throwable) {
                 cb.failed(throwable);
             }
-        },code);
+        });
     }
 
     @Override
@@ -47,6 +50,19 @@ public class ShowExchangeRateCommand extends ShowListOfObjectsCommand<ShowExchan
     @Override
     protected String[] summarizeFields(Rate rate) {
         return new String[]{rate.currency, Double.toString(rate.rate)};
+    }
+
+    public class RateList implements ResponseBody<List<Rate>>{
+        private List<Rate> rates;
+
+        public RateList(List<Rate> rates) {
+            this.rates = rates;
+        }
+
+        @Override
+        public List<Rate> getData() {
+            return rates;
+        }
     }
 
     public static class Rate{

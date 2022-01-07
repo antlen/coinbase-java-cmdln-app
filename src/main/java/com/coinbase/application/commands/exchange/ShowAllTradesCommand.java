@@ -4,14 +4,15 @@ import static com.coinbase.util.ValidationUtils.*;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.CoinbaseAsyncRestClient;
 import com.coinbase.domain.trade.CbTrade;
 import com.coinbase.domain.trade.Side;
+import com.coinbase.domain.trade.response.CbTradeListResponse;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "show_trades", description = "lists all trades for the account.",
         mixinStandardHelpOptions = true)
-public class ShowAllTradesCommand extends ShowListOfObjectsCommand<CbTrade> {
+public class ShowAllTradesCommand extends ShowListOfObjectsCommand<CbTrade,CbTradeListResponse> {
     @CommandLine.Option(names = {"-account"}, description = "The account containaing the trade.", required = true)
     protected String account;
 
@@ -37,9 +38,9 @@ public class ShowAllTradesCommand extends ShowListOfObjectsCommand<CbTrade> {
     }
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbTrade> cb) {
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<CbTradeListResponse> cb) {
         for(Side s : getSides()){
-            c.fetchTrades(cb, account, s);
+            c.fetchTrades(account, s, cb);
         }
     }
 

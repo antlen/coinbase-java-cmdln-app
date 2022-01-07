@@ -1,10 +1,10 @@
 package com.coinbase.application.commands.exchange;
 
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
-import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.client.CoinbaseRestClient;
+import com.coinbase.domain.address.response.CbAddressTransactionResponse;
 import com.coinbase.domain.transaction.request.CbTransferMoneyRequestBuilder;
-import com.coinbase.domain.address.CbAddressTransaction;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "transferMoney",  description = "sends money",
@@ -22,13 +22,13 @@ public class TransferMoneyCommand extends AbstractTransactionCommand<CbTransferM
     }
 
     @Override
-    protected CbAddressTransaction execute(CbTransferMoneyRequestBuilder b, CoinbaseSyncClient c) {
-        return c.transferMoney(b.build());
+    protected CbAddressTransactionResponse execute(CbTransferMoneyRequestBuilder b, CoinbaseRestClient c) {
+        return c.transferMoney(from,b.build());
     }
 
     @Override
-    protected void execute(CbTransferMoneyRequestBuilder b, CoinbaseASyncClient c,
-                           ResponseCallback<CbAddressTransaction> cb) {
-        c.transferMoney(cb, b.build());
+    protected void execute(CbTransferMoneyRequestBuilder b, CoinbaseAsyncRestClient c,
+                           CoinbaseCallback<CbAddressTransactionResponse> cb) {
+        c.transferMoney(from, b.build(), cb);
     }
 }

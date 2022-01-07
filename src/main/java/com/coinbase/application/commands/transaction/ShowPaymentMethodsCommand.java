@@ -2,16 +2,17 @@ package com.coinbase.application.commands.transaction;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.CoinbaseAsyncRestClient;
 import com.coinbase.domain.transaction.payment.CbPaymentMethod;
+import com.coinbase.domain.transaction.response.CbPaymentMethodListResponse;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "list",  description = "shows all payment methods.",
         mixinStandardHelpOptions = true)
-public class ShowPaymentMethodsCommand extends ShowListOfObjectsCommand<CbPaymentMethod> {
+public class ShowPaymentMethodsCommand extends ShowListOfObjectsCommand<CbPaymentMethod, CbPaymentMethodListResponse> {
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbPaymentMethod> cb) {
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<CbPaymentMethodListResponse> cb) {
         c.fetchPaymentMethods(cb);
     }
 

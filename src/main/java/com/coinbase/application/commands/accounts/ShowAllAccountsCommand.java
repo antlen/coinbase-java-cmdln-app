@@ -2,16 +2,17 @@ package com.coinbase.application.commands.accounts;
 
 import com.coinbase.application.commands.CommandCallback;
 import com.coinbase.application.commands.ShowListOfObjectsCommand;
-import com.coinbase.client.async.CoinbaseASyncClient;
+import com.coinbase.client.CoinbaseAsyncRestClient;
 import com.coinbase.domain.account.CbAccount;
+import com.coinbase.domain.account.response.CbAccountListResponse;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "list", description = "lists all accounts.",
         mixinStandardHelpOptions = true)
-public class ShowAllAccountsCommand extends ShowListOfObjectsCommand<CbAccount> {
+public class ShowAllAccountsCommand extends ShowListOfObjectsCommand<CbAccount,CbAccountListResponse> {
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, CommandCallback<CbAccount> cb) {
+    protected void fetchData(CoinbaseAsyncRestClient c, CommandCallback<CbAccountListResponse> cb) {
         c.fetchAccounts(cb);
     }
 

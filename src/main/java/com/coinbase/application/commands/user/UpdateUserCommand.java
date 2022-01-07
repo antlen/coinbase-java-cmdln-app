@@ -1,9 +1,10 @@
 package com.coinbase.application.commands.user;
 
 import com.coinbase.application.client.CbClientWrapper;
-import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.client.CoinbaseRestClient;
 import com.coinbase.domain.user.CbUser;
 import com.coinbase.domain.user.request.CbUserUpdateBuilder;
+import com.coinbase.domain.user.response.CbUserResponse;
 import picocli.CommandLine;
 
 import java.util.TimeZone;
@@ -22,10 +23,10 @@ public class UpdateUserCommand extends ShowUserCommand{
     protected String currency;
 
     @Override
-    protected CbUser modify(CbUser u) {
-        CoinbaseSyncClient client = CbClientWrapper.INSTANCE.getClient();
+    protected CbUserResponse modify(CbUserResponse u) {
+        CoinbaseRestClient client = CbClientWrapper.INSTANCE.getClient();
 
-        CbUserUpdateBuilder builder = new CbUserUpdateBuilder(u);
+        CbUserUpdateBuilder builder = new CbUserUpdateBuilder(u.getData());
         boolean hasParam = false;
         if(timezone != null){
             TimeZone tz = TimeZone.getTimeZone(timezone);

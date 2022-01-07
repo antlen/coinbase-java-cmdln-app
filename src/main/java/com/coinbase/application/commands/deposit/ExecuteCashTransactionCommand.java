@@ -2,16 +2,16 @@ package com.coinbase.application.commands.deposit;
 
 import com.coinbase.application.commands.exchange.AbstractMoneyCommand;
 
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
-import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.client.CoinbaseRestClient;
 import com.coinbase.domain.trade.CashTransactionType;
 import com.coinbase.application.cache.LocalCache;
-import com.coinbase.domain.trade.CbCashTransaction;
 import com.coinbase.domain.trade.request.CbCashTransactionRequestBuilder;
+import com.coinbase.domain.trade.response.CbCashTransactionResponse;
 import picocli.CommandLine;
 
-public abstract class ExecuteCashTransactionCommand extends AbstractMoneyCommand<CbCashTransactionRequestBuilder, CbCashTransaction> {
+public abstract class ExecuteCashTransactionCommand extends AbstractMoneyCommand<CbCashTransactionRequestBuilder, CbCashTransactionResponse> {
 
     @CommandLine.Option(names = {"-pm"}, description = "payment method id", required = true)
     protected String pm;
@@ -25,8 +25,8 @@ public abstract class ExecuteCashTransactionCommand extends AbstractMoneyCommand
     }
 
     @Override
-    protected String[] summarizeFields(CbCashTransaction a) {
-        return DepositCommands.summarizeFields(a);
+    protected String[] summarizeFields(CbCashTransactionResponse a) {
+        return DepositCommands.summarizeFields(a.getData());
     }
 
     @Override
@@ -36,26 +36,26 @@ public abstract class ExecuteCashTransactionCommand extends AbstractMoneyCommand
     }
 
     @Override
-    protected CbCashTransaction execute(CbCashTransactionRequestBuilder b, CoinbaseSyncClient c) {
-        CbCashTransaction d = c.executeCashTransaction(b.build(), type);
-        LocalCache.CASH_TRANS_CACHE.put(d.getId(), d);
+    protected CbCashTransactionResponse execute(CbCashTransactionRequestBuilder b, CoinbaseRestClient c) {
+        CbCashTransactionResponse d = c.executeCashTransaction(b.build(), type);
+        LocalCache.CASH_TRANS_CACHE.put(d.getData().getId(), d);
         return d;
     }
 
     @Override
-    protected void execute(CbCashTransactionRequestBuilder b, CoinbaseASyncClient c, ResponseCallback<CbCashTransaction> cb) {
-        c.executeCashTransaction(new ResponseCallback<CbCashTransaction>() {
+    protected void execute(CbCashTransactionRequestBuilder b, CoinbaseAsyncRestClient c, CoinbaseCallback<CbCashTransactionResponse> cb) {
+        c.executeCashTransaction(from, b.build(), type, new CoinbaseCallback<CbCashTransactionResponse>() {
             @Override
-            public void completed(CbCashTransaction d) {
-                LocalCache.CASH_TRANS_CACHE.put(d.getId(), d);
-                cb.completed(d);
+            public void onResponse(CbCashTransactionResponse d, boolean moreToCome) {
+                LocalCache.CASH_TRANS_CACHE.put(d.getData().getId(), d);
+                cb.onResponse(d, false);
             }
 
             @Override
             public void failed(Throwable throwable) {
                 cb.failed(throwable);
             }
-        }, b.build(), type);
+        });
     }
 
     @CommandLine.Command(name = "execute",  description = "executes a deposit",

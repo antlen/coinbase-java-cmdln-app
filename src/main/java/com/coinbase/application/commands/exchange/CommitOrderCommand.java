@@ -1,30 +1,32 @@
 package com.coinbase.application.commands.exchange;
 
 import com.coinbase.application.commands.ShowObjectCommand;
-import com.coinbase.callback.ResponseCallback;
-import com.coinbase.client.async.CoinbaseASyncClient;
-import com.coinbase.client.sync.CoinbaseSyncClient;
+import com.coinbase.callback.CoinbaseCallback;
+import com.coinbase.client.CoinbaseAsyncRestClient;
+import com.coinbase.client.CoinbaseRestClient;
 import com.coinbase.domain.trade.CbTrade;
 import com.coinbase.domain.trade.Side;
+import com.coinbase.domain.trade.response.CbTradeResponse;
 import com.coinbase.util.ValidationUtils;
 import com.coinbase.application.cache.LocalCache;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "commitOrder",  description = "commits an order",
         mixinStandardHelpOptions = true)
-public class CommitOrderCommand extends ShowObjectCommand<CbTrade> {
+public class CommitOrderCommand extends ShowObjectCommand<CbTradeResponse> {
     @CommandLine.Option(names = {"-id"}, description = "the order id", required = true)
     protected String id;
 
-    @CommandLine.Option(names = {"-account"}, description = "the account")
+    @CommandLine.Option(names = {"-account"}, description = "the account", required = true)
     protected String account;
 
-    @CommandLine.Option(names = {"-side"}, description = "the side")
+    @CommandLine.Option(names = {"-side"}, description = "the side", required = true)
     protected String side;
 
 
     @Override
-    protected String[] summarizeFields(CbTrade a) {
+    protected String[] summarizeFields(CbTradeResponse response) {
+        CbTrade a = response.getData();
         return new String[]{a.getCreatedAt(), a.getId(),a.getStatus(),
                 ValidationUtils.valueOrEmpty(a.getSide(), t -> t.toString()),
                 ValidationUtils.valueOrEmpty(a.getAmount(), t -> t.getCurrency()),
@@ -33,27 +35,19 @@ public class CommitOrderCommand extends ShowObjectCommand<CbTrade> {
     }
 
     @Override
-    protected CbTrade getData(CoinbaseSyncClient c) {
-        CbTrade t = LocalCache.TRADE_CACHE.get(id);
-        if(t != null){
-            t = c.commitOrder(t);
-        }else{
-            validate();
-            t = c.commitOrder(account, id, Side.valueOf(side.toUpperCase()));
-        }
-        LocalCache.TRADE_CACHE.put(t.getId(),t);
+    protected CbTradeResponse getData(CoinbaseRestClient c) {
+
+        validate();
+        CbTradeResponse t = c.commitOrder(account, id, Side.valueOf(side.toUpperCase()));
+
+        LocalCache.TRADE_CACHE.put(t.getData().getId(), t);
         return t;
     }
 
     @Override
-    protected void fetchData(CoinbaseASyncClient c, ResponseCallback<CbTrade> cb) {
-        CbTrade t = LocalCache.TRADE_CACHE.get(id);
-        if(t != null) {
-            c.commitOrder(cb, t);
-        }else{
-            validate();
-            c.commitOrder(cb,account, id, Side.valueOf(side.toUpperCase()));
-        }
+    protected void fetchData(CoinbaseAsyncRestClient c, CoinbaseCallback<CbTradeResponse> cb) {
+        validate();
+        c.commitOrder(account, id, Side.valueOf(side.toUpperCase()), cb);
     }
 
     private void validate() {
