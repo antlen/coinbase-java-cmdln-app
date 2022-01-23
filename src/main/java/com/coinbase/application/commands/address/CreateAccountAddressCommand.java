@@ -9,7 +9,7 @@ import com.coinbase.domain.address.request.CbCreateAddressRequest;
 import com.coinbase.domain.address.response.CbAddressResponse;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "create_address", description = "creates an address in the given account.",
+@CommandLine.Command(name = "create", description = "creates an address in the given account.",
         mixinStandardHelpOptions = true)
 public class CreateAccountAddressCommand extends ShowObjectCommand<CbAddressResponse> {
 
@@ -26,7 +26,7 @@ public class CreateAccountAddressCommand extends ShowObjectCommand<CbAddressResp
 
     @Override
     protected void fetchData(CoinbaseAsyncRestClient c, CoinbaseCallback<CbAddressResponse> cb) {
-        c.fetchAddress(id, name, cb);
+        c.createAddress(id, new CbCreateAddressRequest(name), cb);
     }
 
     @Override
